@@ -1,32 +1,38 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LoginUser } from '../../Api';
+import Cookies from 'js-cookie';
 
 function Login() {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
-    })
+    });
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const userData = await LoginUser(formData);
-            console.log('User logged in :', userData);
+            console.log('User logged in:', userData);
 
+            if (userData.token) {
+                Cookies.set('authToken', userData.token, { expires: 7 }); 
+                Cookies.set('name', userData.user.name, { expires: 7 }); 
+
+                window.location.href = '/Home';
+            } else {
+                throw new Error('Token not found in response');
+            }
         } catch (error) {
-            setError('Failed to login. Please check your credentials.');
+            setError('Failed to login. Please try again later.');
             console.error('Error logging in:', error);
-
         }
-    }
-
-
+    };
     return (
         <div>
             <section className="py-10 bg-gray-900 sm:py-16 lg:py-24">
@@ -138,7 +144,7 @@ function Login() {
                                         </div>
                                     </form>
 
-                                    <Link to="/Register">i don't have an account !</Link>
+                                    <Link className='underline font-bold' to="/Register">i don't have an account !</Link>
                                 </div>
                             </div>
                         </div>

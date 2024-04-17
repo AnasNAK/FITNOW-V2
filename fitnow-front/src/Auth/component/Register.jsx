@@ -1,7 +1,43 @@
-import React from 'react';
-
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { RegisterUser } from '../../Api';
+import Login from './Login'; 
 
 function Register() {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: ''
+    });
+
+    const [error, setError] = useState('');
+    const [registrationSuccess, setRegistrationSuccess] = useState(false); 
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const userData = await RegisterUser(formData);
+            console.log('User registered with success:', userData);
+            if (userData) {
+                console.log('Redirecting to login...');
+                setRegistrationSuccess(true); 
+            } else {
+                console.log('Registration failed:', error.message);
+            }
+        } catch (error) {
+            setError('Failed to register. Please check your credentials.');
+            console.error('Error logging in:', error);
+        }
+    };
+
+    if (registrationSuccess) {
+        return <Login />;
+    }
     return (
         <div>
             <section className="py-10 bg-gray-900 sm:py-16 lg:py-24">
@@ -59,13 +95,16 @@ function Register() {
                                 <div className="p-6 sm:p-10">
                                     <h3 className="text-3xl font-semibold text-black">let's signin</h3>
                                     <p className="mt-4 text-base text-gray-600"> </p>
-
-                                    <form action="#" method="POST" className="mt-4">
+                                    {error && <div className='text-red-500'>{error}</div>}
+                                    <form onSubmit={handleSubmit} className="mt-4">
                                         <div className="space-y-6">
                                             <div>
                                                 <label htmlFor="name" className="text-base font-medium text-gray-900"> Your name </label>
                                                 <div className="mt-2.5 relative">
                                                     <input
+                                                        name='name'
+                                                        value={formData.name}
+                                                        onChange={handleChange}
                                                         type="text"
                                                         id="name"
                                                         placeholder="Enter your full name"
@@ -78,6 +117,9 @@ function Register() {
                                                 <label htmlFor="email" className="text-base font-medium text-gray-900"> Email address </label>
                                                 <div className="mt-2.5 relative">
                                                     <input
+                                                        name='email'
+                                                        value={formData.email}
+                                                        onChange={handleChange}
                                                         type="text"
                                                         id="email"
                                                         placeholder="Enter your email address"
@@ -91,6 +133,9 @@ function Register() {
                                                 <div className="mt-2.5 relative">
                                                     <input type='password'
                                                         id="projectBrief"
+                                                        name='password'
+                                                        value={formData.password}
+                                                        onChange={handleChange}
                                                         placeholder="Enter your password"
                                                         className="block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md resize-y focus:outline-none focus:ring-orange-500 focus:border-orange-500 caret-orange-500"
                                                         rows="4"
@@ -100,14 +145,13 @@ function Register() {
 
                                             <div>
                                                 <button type="submit" className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 bg-orange-500 border border-transparent rounded-md focus:outline-none hover:bg-orange-600 focus:bg-orange-600">
-                                                    Login
+                                                    Register
                                                 </button>
                                             </div>
                                         </div>
                                     </form>
 
-                                    <a href="" className='underline bg-slate-500 w-[100%]'>i don't have an account !</a>
-
+                                    <Link className='underline font-bold' to="/Login">im already have an account !</Link>
 
                                 </div>
                             </div>
