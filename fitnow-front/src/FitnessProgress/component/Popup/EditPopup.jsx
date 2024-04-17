@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from "@chakra-ui/react";
 import { UpdateProgress } from "../../../Api";
 import Cookies from "js-cookie";
 
-function EditPopup({progressData,onUpdateSuccess  }) {
+function EditModal({ progressData, onUpdateSuccess, isOpen, onClose }) {
     const [formData, setFormData] = useState(null);
-    
-   
+
     useEffect(() => {
         if (progressData) {
             setFormData(progressData);
-            console.log('we are here 3');
         }
     }, [progressData]);
 
@@ -86,9 +84,7 @@ function EditPopup({progressData,onUpdateSuccess  }) {
         }
     };
 
-    const { isOpen, onOpen, onClose } = useDisclosure();
-
-    if (!formData) return null ;
+    if (!formData) return null;
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -130,4 +126,4 @@ function EditPopup({progressData,onUpdateSuccess  }) {
     );
 }
 
-export default EditPopup;
+export default EditModal;

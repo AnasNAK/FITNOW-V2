@@ -5,12 +5,11 @@ import { fetchProgress, deleteProgress, updateProgressStatus } from '../../Api';
 import { isAuthenticated } from '../../auth';
 import Cookies from 'js-cookie';
 import Popup from "./Popup/AddPopup";
-import Edit from "./Popup/EditPopup";
+import EditModal from "./Popup/EditPopup";
 import Header from "./nav/Header";
-import { useDisclosure } from '@chakra-ui/react';
 
 const Home = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const [userProgress, setUserProgress] = useState([]);
   const [editingProgress, setEditingProgress] = useState(null);
@@ -47,47 +46,45 @@ const Home = () => {
 
   const handleEditProgress = (progressData) => {
     setEditingProgress(progressData);
-    console.log('we are here 1 ');
-    onOpen();
-    console.log('we are here 2');
+    setIsModalOpen(true);
   };
 
-  // const handleDeleteConfirmation = (id) => {
-  //   Swal.fire({
-  //     title: 'Êtes-vous sûr?',
-  //     text: "Vous ne pourrez pas récupérer cet élément!",
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonColor: '#3085d6',
-  //     cancelButtonColor: '#d33',
-  //     confirmButtonText: 'Oui, supprimer!',
-  //     cancelButtonText: 'Annuler'
-  //   }).then((result) => {
-  //     if (result.isConfirmed) {
-  //       handleDelete(id);
-  //     }
-  //   });
-  // };
+  const handleDeleteConfirmation = (id) => {
+    Swal.fire({
+      title: 'Êtes-vous sûr?',
+      text: "Vous ne pourrez pas récupérer cet élément!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, supprimer!',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(id);
+      }
+    });
+  };
 
-  // const handleDelete = async (id) => {
-  //   try {
-  //     await deleteProgress(id, token);
-  //     const newProgress = userProgress.filter((item) => item.id !== id);
-  //     setUserProgress(newProgress);
-  //     Swal.fire({
-  //       icon: 'info',
-  //       title: 'Success',
-  //       text: 'Your progress has been deleted.',
-  //     });
-  //   } catch (error) {
-  //     console.error('Erreur:', error);
-  //     Swal.fire({
-  //       icon: 'error',
-  //       title: 'Erreur',
-  //       text: 'Une erreur s\'est produite lors de la suppression. Veuillez réessayer.',
-  //     });
-  //   }
-  // };
+  const handleDelete = async (id) => {
+    try {
+      await deleteProgress(id, token);
+      const newProgress = userProgress.filter((item) => item.id !== id);
+      setUserProgress(newProgress);
+      Swal.fire({
+        icon: 'info',
+        title: 'Success',
+        text: 'Your progress has been deleted.',
+      });
+    } catch (error) {
+      console.error('Erreur:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'Une erreur s\'est produite lors de la suppression. Veuillez réessayer.',
+      });
+    }
+  };
 
   const updateStatus = async (id) => {
     try {
@@ -114,7 +111,12 @@ const Home = () => {
           <Popup onInsertSuccess={handleInsertSuccess} />
         </div>
 
-        <Edit progressData={editingProgress} onUpdateSuccess={fetchUserProgress} onClose={onClose} />
+        <EditModal
+          progressData={editingProgress}
+          onUpdateSuccess={fetchUserProgress}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
         <div className="flex flex-col max-w-3xl mx-auto overflow-x-auto">
           <div className="inline-block min-w-full py-2 mx-4 overflow-hidden md:mx-0 sm:px-6 lg:px-8">
             <table className="min-w-full text-sm font-light text-left">
@@ -176,17 +178,21 @@ const Home = () => {
                     <td>
                       <button
                         className="font-medium text-blue-600 me-3"
+                        style={{
+                          color: user.status === 1 ? 'white' : 'blue',
+                        }}
+                        disabled={user.status === 1 }
                         onClick={() => handleEditProgress(user)}
                       >
                         Edit
                       </button>
 
-                      {/* <button
+                      <button
                         className="font-medium text-red-700"
                         onClick={() => handleDeleteConfirmation(user.id)}
                       >
                         Delete
-                      </button> */}
+                      </button>
                     </td>
                   </tr>
                 ))}
